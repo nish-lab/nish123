@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Game for My Sister</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      background-color: #f0f8ff;
+      margin: 0;
+      padding: 20px;
+    }
+    .section {
+      display: none;
+    }
+    .visible {
+      display: block;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    input {
+      padding: 8px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    .result-box {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="home" class="section visible">
+    <h1>Welcome to the Math Game!</h1>
+    <button onclick="startGame('addition')">Addition</button>
+    <button onclick="startGame('subtraction')">Subtraction</button>
+    <button onclick="startGame('multiplication')">Multiplication</button>
+  </div>
+
+  <div id="setup" class="section">
+    <h2 id="gameTitle"></h2>
+    <label>Until what number?</label><br>
+    <input type="number" id="maxNumber" min="1"><br>
+    <label>How many questions?</label><br>
+    <input type="number" id="questionCount" min="1"><br>
+    <button onclick="beginQuiz()">Start Game</button>
+  </div>
+
+  <div id="quiz" class="section">
+    <h2 id="questionTitle"></h2>
+    <p id="questionText"></p>
+    <input type="number" id="answerInput"><br>
+    <button onclick="submitAnswer()">Submit</button>
+  </div>
+
+  <div id="result" class="section">
+    <h2>Results</h2>
+    <div id="resultsList" class="result-box"></div>
+    <p id="finalScore"></p>
+    <button onclick="resetGame()">Play Again</button>
+  </div>
+
+  <script>
+    let currentGame = '';
+    let maxNum = 10;
+    let totalQuestions = 5;
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let userAnswers = [];
+
+    function startGame(gameType) {
+      currentGame = gameType;
+      document.getElementById('home').classList.remove('visible');
+      document.getElementById('setup').classList.add('visible');
+      document.getElementById('gameTitle').innerText = `Setup: ${gameType.charAt(0).toUpperCase() + gameType.slice(1)}`;
+    }
+
+    function beginQuiz() {
+      maxNum = parseInt(document.getElementById('maxNumber').value);
+      totalQuestions = parseInt(document.getElementById('questionCount').value);
+      if (!maxNum || !totalQuestions) return alert('Please fill in both fields!');
+      questions = [];
+      userAnswers = [];
+      score = 0;
+      currentQuestionIndex = 0;
+
+      for (let i = 0; i < totalQuestions; i++) {
+        let a = Math.floor(Math.random() * maxNum) + 1;
+        let b = Math.floor(Math.random() * maxNum) + 1;
+        if (currentGame === 'subtraction') {
+          if (a < b) [a, b] = [b, a];
+        } else if (currentGame === 'multiplication') {
+          a = Math.floor(Math.random() * maxNum) + 1;
+          b = Math.floor(Math.random() * 10) + 1;
+        }
+        questions.push({ a, b });
+      }
+
+      document.getElementById('setup').classList.remove('visible');
+      document.getElementById('quiz').classList.add('visible');
+      showQuestion();
+    }
+
+    function showQuestion() {
+      const q = questions[currentQuestionIndex];
+      let symbol = '+';
+      if (currentGame === 'subtraction') symbol = '-';
+      else if (currentGame === 'multiplication') symbol = '×';
+      document.getElementById('questionTitle').innerText = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+      document.getElementById('questionText').innerText = `${q.a} ${symbol} ${q.b} = ?`;
+      document.getElementById('answerInput').value = '';
+    }
+
+    function submitAnswer() {
+      const userInput = parseInt(document.getElementById('answerInput').value);
+      if (isNaN(userInput)) return alert('Please enter a number.');
+
+      const { a, b } = questions[currentQuestionIndex];
+      let correctAnswer = 0;
+      if (currentGame === 'addition') correctAnswer = a + b;
+      else if (currentGame === 'subtraction') correctAnswer = a - b;
+      else if (currentGame === 'multiplication') correctAnswer = a * b;
+
+      userAnswers.push({ a, b, answer: userInput, correct: correctAnswer });
+      if (userInput === correctAnswer) score++;
+
+      currentQuestionIndex++;
+      if (currentQuestionIndex < totalQuestions) {
+        showQuestion();
+      } else {
+        endGame();
+      }
+    }
+
+    function endGame() {
+      document.getElementById('quiz').classList.remove('visible');
+      document.getElementById('result').classList.add('visible');
+
+      const resultsList = document.getElementById('resultsList');
+      resultsList.innerHTML = '';
+      userAnswers.forEach((q, i) => {
+        const symbol = currentGame === 'addition' ? '+' : currentGame === 'subtraction' ? '-' : '×';
+        const correctText = q.answer === q.correct ? '✅' : `❌ (Correct: ${q.correct})`;
+        const p = document.createElement('p');
+        p.innerText = `Q${i + 1}: ${q.a} ${symbol} ${q.b} = ${q.answer} ${correctText}`;
+        resultsList.appendChild(p);
+      });
+
+      document.getElementById('finalScore').innerText = `Score: ${score} out of ${totalQuestions}`;
+    }
+
+    function resetGame() {
+      document.getElementById('result').classList.remove('visible');
+      document.getElementById('home').classList.add('visible');
+    }
+  </script>
+</body>
+</html>
