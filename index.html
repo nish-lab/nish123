@@ -36,6 +36,10 @@
     .result-box {
       margin-top: 20px;
     }
+    #timer {
+      font-weight: bold;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -60,12 +64,14 @@
     <p id="questionText"></p>
     <input type="number" id="answerInput"><br>
     <button onclick="submitAnswer()">Submit</button>
+    <p id="timer"></p>
   </div>
 
   <div id="result" class="section">
     <h2>Results</h2>
     <div id="resultsList" class="result-box"></div>
     <p id="finalScore"></p>
+    <p id="finalTime"></p>
     <button onclick="resetGame()">Play Again</button>
   </div>
 
@@ -77,6 +83,7 @@
     let currentQuestionIndex = 0;
     let score = 0;
     let userAnswers = [];
+    let startTime, endTime;
 
     function startGame(gameType) {
       currentGame = gameType;
@@ -106,6 +113,7 @@
         questions.push({ a, b });
       }
 
+      startTime = new Date();
       document.getElementById('setup').classList.remove('visible');
       document.getElementById('quiz').classList.add('visible');
       showQuestion();
@@ -119,6 +127,18 @@
       document.getElementById('questionTitle').innerText = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
       document.getElementById('questionText').innerText = `${q.a} ${symbol} ${q.b} = ?`;
       document.getElementById('answerInput').value = '';
+      updateTimer();
+    }
+
+    function updateTimer() {
+      const now = new Date();
+      const elapsed = Math.floor((now - startTime) / 1000);
+      const minutes = Math.floor(elapsed / 60);
+      const seconds = elapsed % 60;
+      document.getElementById('timer').innerText = `Time Elapsed: ${minutes}m ${seconds}s`;
+      if (document.getElementById('quiz').classList.contains('visible')) {
+        setTimeout(updateTimer, 1000);
+      }
     }
 
     function submitAnswer() {
@@ -143,6 +163,11 @@
     }
 
     function endGame() {
+      endTime = new Date();
+      const totalTime = Math.floor((endTime - startTime) / 1000);
+      const minutes = Math.floor(totalTime / 60);
+      const seconds = totalTime % 60;
+
       document.getElementById('quiz').classList.remove('visible');
       document.getElementById('result').classList.add('visible');
 
@@ -157,6 +182,7 @@
       });
 
       document.getElementById('finalScore').innerText = `Score: ${score} out of ${totalQuestions}`;
+      document.getElementById('finalTime').innerText = `Time Taken: ${minutes} minutes and ${seconds} seconds`;
     }
 
     function resetGame() {
