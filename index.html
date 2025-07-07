@@ -48,6 +48,7 @@
     <button onclick="startGame('addition')">Addition</button>
     <button onclick="startGame('subtraction')">Subtraction</button>
     <button onclick="startGame('multiplication')">Multiplication</button>
+    <button onclick="startGame('division')">Division</button>
   </div>
 
   <div id="setup" class="section">
@@ -105,11 +106,15 @@
         let a = Math.floor(Math.random() * maxNum) + 1;
         let b = Math.floor(Math.random() * maxNum) + 1;
         if (currentGame === 'subtraction') {
-          if (a < b) [a, b] = [b, a];
-        } else if (currentGame === 'multiplication') {
-          a = Math.floor(Math.random() * maxNum) + 1;
-          b = Math.floor(Math.random() * 10) + 1;
-        }
+if (a < b) [a, b] = [b, a];
+} else if (currentGame === 'multiplication') {
+  a = Math.floor(Math.random() * maxNum) + 1;
+  b = Math.floor(Math.random() * 10) + 1;
+} else if (currentGame === 'division') {
+  b = Math.floor(Math.random() * maxNum) + 1; // divisor
+  let quotient = Math.floor(Math.random() * maxNum) + 1;
+  a = b * quotient; // dividend
+}
         questions.push({ a, b });
       }
 
@@ -124,6 +129,7 @@
       let symbol = '+';
       if (currentGame === 'subtraction') symbol = '-';
       else if (currentGame === 'multiplication') symbol = '×';
+      else if (currentGame === 'division') symbol = '÷';
       document.getElementById('questionTitle').innerText = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
       document.getElementById('questionText').innerText = `${q.a} ${symbol} ${q.b} = ?`;
       document.getElementById('answerInput').value = '';
@@ -150,6 +156,8 @@
       if (currentGame === 'addition') correctAnswer = a + b;
       else if (currentGame === 'subtraction') correctAnswer = a - b;
       else if (currentGame === 'multiplication') correctAnswer = a * b;
+      else if (currentGame === 'division') correctAnswer = a / b;
+
 
       userAnswers.push({ a, b, answer: userInput, correct: correctAnswer });
       if (userInput === correctAnswer) score++;
@@ -174,12 +182,15 @@
       const resultsList = document.getElementById('resultsList');
       resultsList.innerHTML = '';
       userAnswers.forEach((q, i) => {
-        const symbol = currentGame === 'addition' ? '+' : currentGame === 'subtraction' ? '-' : '×';
-        const correctText = q.answer === q.correct ? '✅' : `❌ (Correct: ${q.correct})`;
-        const p = document.createElement('p');
-        p.innerText = `Q${i + 1}: ${q.a} ${symbol} ${q.b} = ${q.answer} ${correctText}`;
-        resultsList.appendChild(p);
-      });
+let symbol = '+';
+if (currentGame === 'subtraction') symbol = '-';
+else if (currentGame === 'multiplication') symbol = '×';
+else if (currentGame === 'division') symbol = '÷';
+      const correctText = q.answer === q.correct ? '✅' : `❌ (Correct: ${q.correct})`;
+      const p = document.createElement('p');
+      p.innerText = `Q${i + 1}: ${q.a} ${symbol} ${q.b} = ${q.answer} ${correctText}`;
+      resultsList.appendChild(p);
+    });
 
       document.getElementById('finalScore').innerText = `Score: ${score} out of ${totalQuestions}`;
       document.getElementById('finalTime').innerText = `Time Taken: ${minutes} minutes and ${seconds} seconds`;
